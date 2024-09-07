@@ -7,7 +7,7 @@ import {
 import { TRPCError } from '@trpc/server'
 import { AuthCallbackResponse } from '@/types/types'
 import { db } from '@/db'
-// import { z } from 'zod'
+import { z } from 'zod'
 // import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
 // import { absoluteUrl } from '@/lib/utils'
 // import {
@@ -19,10 +19,10 @@ import { db } from '@/db'
 export const appRouter = router({ 
   authCallback: publicProcedure.query<AuthCallbackResponse>(async () => {
     const { getUser } = await getKindeServerSession()
-    const user = await getUser()
+    const user = await getUser();
 
     if (!user.id || !user.email)
-      throw new TRPCError({ code: 'UNAUTHORIZED' })
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
 
     // check if the user is in the database
     const dbUser = await db.user.findFirst({
@@ -44,6 +44,38 @@ export const appRouter = router({
     return { success: true }
   }),
 
+  getUserFiles: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+
+    return await db.file.findMany({
+      where: {
+        userId,
+      },
+    })
+  }),
+
+  deleteFile: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx
+
+      const file = await db.file.findFirst({
+        where: {
+          id: input.id,
+          userId,
+        },
+      })
+
+      if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      await db.file.delete({
+        where: {
+          id: input.id,
+        },
+      })
+
+      return file
+    }),
 });
 export type AppRouter = typeof appRouter;
 

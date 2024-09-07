@@ -11,6 +11,7 @@ import { Button } from './ui/button'
 // import { useToast } from './ui/use-toast'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 
 // const UploadDropzone = ({
 //   isSubscribed,
@@ -161,7 +162,24 @@ const UploadButton = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   return (
-   <>  </>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(v) => {
+        if (!v) {
+          setIsOpen(v)
+        }
+      }}>
+      <DialogTrigger
+        onClick={() => setIsOpen(true)}
+        asChild>
+        <Button>Upload PDF</Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        Helllllo
+        {/* <UploadDropzone isSubscribed={isSubscribed} /> */}
+      </DialogContent>
+    </Dialog>
   )
 }
 
