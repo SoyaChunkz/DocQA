@@ -18,7 +18,7 @@ import { z } from 'zod'
 
 export const appRouter = router({ 
   authCallback: publicProcedure.query<AuthCallbackResponse>(async () => {
-    const { getUser } = await getKindeServerSession()
+    const { getUser } = getKindeServerSession()
     const user = await getUser();
 
     if (!user.id || !user.email)

@@ -5,7 +5,7 @@ const t = initTRPC.create()
 const middleware = t.middleware
 
 const isAuth = middleware(async (opts) => {
-  const { getUser } = await getKindeServerSession()
+  const { getUser } = getKindeServerSession()
   const user = await getUser()
 
   if (!user || !user.id) {

@@ -9,10 +9,17 @@ import {format} from "date-fns"
 import { Button } from "./ui/button"
 import { useState } from "react"
 
-const Dashboard = () => {
+// interface PageProps {
+//   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
+// }
+
+const Dashboard = ( 
+  // {subscriptionPlan}: PageProps
+ ) => {
 
   const [currentlyDeletingFile, setCurrentlyDeletingFile] = useState<string | null>(null);
-  const utils = trpc.useContext()
+
+  const utils = trpc.useUtils();
 
   const { data: files, isLoading } = trpc.getUserFiles.useQuery();
 

@@ -1,4 +1,3 @@
-import { metadata } from '@/app/layout'
 import { db } from '@/db'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import {
@@ -47,7 +46,7 @@ const onUploadComplete = async ({
     },
   })
 
-  if (isFileExist) return;
+  if (isFileExist) return
 
   const createdFile = await db.file.create({
     data: {
