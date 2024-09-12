@@ -13,7 +13,7 @@ interface PageProps {
 const Page = async ({ params }: PageProps) => {
     const { fileid } = params
 
-    const { getUser } = await getKindeServerSession()
+    const { getUser } = getKindeServerSession()
     const user = await getUser()
 
     if (!user || !user.id)
