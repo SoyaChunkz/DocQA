@@ -9,7 +9,6 @@ import { useUploadThing } from '@/lib/uploadthing'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
-import { resolve } from 'path'
 import { useToast } from '@/hooks/use-toast'
 
 const UploadDropzone = () => {

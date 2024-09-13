@@ -8,6 +8,7 @@ import { TRPCError } from '@trpc/server'
 import { AuthCallbackResponse } from '@/types/types'
 import { db } from '@/db'
 import { z } from 'zod'
+import { UploadStatus } from '@prisma/client'
 // import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
 // import { absoluteUrl } from '@/lib/utils'
 // import {
@@ -16,8 +17,13 @@ import { z } from 'zod'
 // } from '@/lib/stripe'
 // import { PLANS } from '@/config/stripe'
 
+const UploadStatusSchema = z.object({
+  status: z.nativeEnum(UploadStatus), // Use the enum directly
+});
+
 export const appRouter = router({ 
-  authCallback: publicProcedure.query<AuthCallbackResponse>(async () => {
+  authCallback: publicProcedure
+  .query<AuthCallbackResponse>(async () => {
     const { getUser } = getKindeServerSession()
     const user = await getUser();
 
@@ -44,7 +50,8 @@ export const appRouter = router({
     return { success: true }
   }),
 
-  getUserFiles: privateProcedure.query(async ({ ctx }) => {
+  getUserFiles: privateProcedure
+  .query(async ({ ctx }) => {
     const { userId } = ctx;
 
     return await db.file.findMany({
@@ -52,6 +59,25 @@ export const appRouter = router({
         userId,
       },
     })
+  }),
+
+  getFileUploadStatus: privateProcedure
+  .input(z.object({ fileId: z.string() }))
+  .query(async ({ input, ctx }) => {
+    const file = await db.file.findFirst({
+      where: {
+        id: input.fileId,
+        userId: ctx.userId,
+      },
+    });
+
+    // If the file is not found, return PENDING status
+    if (!file) {
+      return { status: UploadStatus.PENDING }; // Use the UploadStatus enum here
+    }
+
+    // Return the upload status from the database
+    return { status: file.uploadStatus }; // Assuming uploadStatus is of type UploadStatus
   }),
 
   getFile: privateProcedure
