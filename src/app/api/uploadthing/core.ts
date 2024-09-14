@@ -5,10 +5,10 @@ import {
   type FileRouter,
 } from 'uploadthing/next'
 
-// import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
-// import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
-// import { PineconeStore } from 'langchain/vectorstores/pinecone'
-// import { getPineconeClient } from '@/lib/pinecone'
+import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
+import { PineconeStore } from 'langchain/vectorstores/pinecone'
+import { getPineconeClient } from '@/lib/pinecone'
 // import { getUserSubscriptionPlan } from '@/lib/stripe'
 // import { PLANS } from '@/config/stripe'
 
@@ -58,79 +58,85 @@ const onUploadComplete = async ({
     },
   })
 
-//   try {
-//     const response = await fetch(
-//       `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
-//     )
+  try {
+    console.log("getting file")
+    const response = await fetch(
+      `https://utfs.io/f/${file.key}`
+    )
+    console.log("got file")
+    
+    const blob = await response.blob();
+    const loader = new PDFLoader(blob);
 
-//     const blob = await response.blob()
+    const pageLevelDocs = await loader.load();
+    const pagesAmt = pageLevelDocs.length;
 
-//     const loader = new PDFLoader(blob)
+    // const { subscriptionPlan } = metadata
+    // const { isSubscribed } = subscriptionPlan
 
-//     const pageLevelDocs = await loader.load()
+    // const isProExceeded =
+    //   pagesAmt >
+    //   PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
+    // const isFreeExceeded =
+    //   pagesAmt >
+    //   PLANS.find((plan) => plan.name === 'Free')!
+    //     .pagesPerPdf
 
-//     const pagesAmt = pageLevelDocs.length
+    // if (
+    //   (isSubscribed && isProExceeded) ||
+    //   (!isSubscribed && isFreeExceeded)
+    // ) {
+    //   await db.file.update({
+    //     data: {
+    //       uploadStatus: 'FAILED',
+    //     },
+    //     where: {
+    //       id: createdFile.id,
+    //     },
+    //   })
+    // }
 
-//     const { subscriptionPlan } = metadata
-//     const { isSubscribed } = subscriptionPlan
+    // vectorize and index entire document
+    console.log("creating pinecone")
+    const pinecone = await getPineconeClient();
+    const pineconeIndex = pinecone.Index("docqa");
+    
+    const embeddings = new OpenAIEmbeddings({
+      openAIApiKey: process.env.OPENAI_API_KEY,
+    })
 
-//     const isProExceeded =
-//       pagesAmt >
-//       PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
-//     const isFreeExceeded =
-//       pagesAmt >
-//       PLANS.find((plan) => plan.name === 'Free')!
-//         .pagesPerPdf
+    if (!embeddings) {
+      console.log('Failed to initialize OpenAI embeddings. Check your API key.');
+    }
 
-//     if (
-//       (isSubscribed && isProExceeded) ||
-//       (!isSubscribed && isFreeExceeded)
-//     ) {
-//       await db.file.update({
-//         data: {
-//           uploadStatus: 'FAILED',
-//         },
-//         where: {
-//           id: createdFile.id,
-//         },
-//       })
-//     }
+    await PineconeStore.fromDocuments(
+      pageLevelDocs,
+      embeddings,
+      {
+        pineconeIndex,
+        namespace: createdFile.id,
+      }
+    )
 
-//     // vectorize and index entire document
-//     const pinecone = await getPineconeClient()
-//     const pineconeIndex = pinecone.Index('quill')
-
-//     const embeddings = new OpenAIEmbeddings({
-//       openAIApiKey: process.env.OPENAI_API_KEY,
-//     })
-
-//     await PineconeStore.fromDocuments(
-//       pageLevelDocs,
-//       embeddings,
-//       {
-//         pineconeIndex,
-//         namespace: createdFile.id,
-//       }
-//     )
-
-//     await db.file.update({
-//       data: {
-//         uploadStatus: 'SUCCESS',
-//       },
-//       where: {
-//         id: createdFile.id,
-//       },
-//     })
-//   } catch (err) {
-//     await db.file.update({
-//       data: {
-//         uploadStatus: 'FAILED',
-//       },
-//       where: {
-//         id: createdFile.id,
-//       },
-//     })
-//   }
+    await db.file.update({
+      data: {
+        uploadStatus: 'SUCCESS',
+      },
+      where: {
+        id: createdFile.id,
+      },
+    })
+  } catch (err) {
+    console.log('Error processing the PDF:', err);
+    await db.file.update({
+      data: {
+        uploadStatus: 'FAILED',
+      },
+      where: {
+        id: createdFile.id,
+      },
+    })
+  }
 }
 
 export const ourFileRouter = {

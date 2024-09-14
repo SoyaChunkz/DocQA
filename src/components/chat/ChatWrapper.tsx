@@ -7,7 +7,6 @@ import { ChevronLeft, Loader2, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { buttonVariants } from '../ui/button'
 import { ChatContextProvider } from './ChatContext'
-// import { ChatContextProvider } from './ChatContext'
 // import { PLANS } from '@/config/stripe'
 
 interface ChatWrapperProps {
@@ -34,7 +33,7 @@ const ChatWrapper = ({
     )
 
     console.log(data);
-    // console.log(isLoading);
+    console.log(isLoading);
 
   if (isLoading)
     return (

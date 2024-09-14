@@ -73,11 +73,11 @@ export const appRouter = router({
 
     // If the file is not found, return PENDING status
     if (!file) {
-      return { status: UploadStatus.PENDING }; // Use the UploadStatus enum here
+      return { status: 'PENDING' as const }; 
     }
 
     // Return the upload status from the database
-    return { status: file.uploadStatus }; // Assuming uploadStatus is of type UploadStatus
+    return { status: file.uploadStatus }; 
   }),
 
   getFile: privateProcedure
