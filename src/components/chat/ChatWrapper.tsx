@@ -24,8 +24,11 @@ const ChatWrapper = ({
         fileId,
       },
       {
+        
         refetchInterval: (data) =>
+          // @ts-ignore 
           data?.status === 'SUCCESS' ||
+          // @ts-ignore
           data?.status === 'FAILED'
             ? false
             : 500,

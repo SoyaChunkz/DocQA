@@ -70,6 +70,7 @@ const onUploadComplete = async ({
 
     const pageLevelDocs = await loader.load();
     const pagesAmt = pageLevelDocs.length;
+    console.log(`Loaded ${pagesAmt} pages from PDF.`);
 
     // const { subscriptionPlan } = metadata
     // const { isSubscribed } = subscriptionPlan
@@ -96,24 +97,28 @@ const onUploadComplete = async ({
     //   })
     // }
 
-    // vectorize and index entire document
-    console.log("creating pinecone")
-    const pinecone = await getPineconeClient();
-    const pineconeIndex = pinecone.Index("docqa");
+    // Vectorize and index entire document
+    console.log("creating pinecone");
+    const pinecone = getPineconeClient(); 
+    const pineconeIndex = pinecone.Index('docqa')
+    console.log("got index", pineconeIndex);
     
     const embeddings = new OpenAIEmbeddings({
       openAIApiKey: process.env.OPENAI_API_KEY,
     })
+    console.log("got embeddings")
 
     if (!embeddings) {
       console.log('Failed to initialize OpenAI embeddings. Check your API key.');
     }
 
+    console.log("creating vectors")
     await PineconeStore.fromDocuments(
       pageLevelDocs,
       embeddings,
       {
-        pineconeIndex,
+      // @ts-ignore
+        pineconeIndex, // Use the index directly
         namespace: createdFile.id,
       }
     )
