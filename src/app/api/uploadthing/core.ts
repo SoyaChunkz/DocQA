@@ -4,7 +4,6 @@ import {
   createUploadthing,
   type FileRouter,
 } from 'uploadthing/next'
-
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
 import { PineconeStore } from 'langchain/vectorstores/pinecone'
@@ -98,11 +97,13 @@ const onUploadComplete = async ({
     // }
 
     // Vectorize and index entire document
-    console.log("creating pinecone");
+    console.log("creating pinecone client");
     const pinecone = getPineconeClient(); 
     const pineconeIndex = pinecone.Index('docqa')
-    console.log("got index", pineconeIndex);
+
+    console.log("got pinecone index", pineconeIndex);
     
+    // Using OPENAI (not working)
     const embeddings = new OpenAIEmbeddings({
       openAIApiKey: process.env.OPENAI_API_KEY,
     })

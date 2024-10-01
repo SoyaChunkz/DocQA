@@ -1,5 +1,4 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { string } from 'zod';
 
 export const getPineconeClient = () => {
   const client = new Pinecone({

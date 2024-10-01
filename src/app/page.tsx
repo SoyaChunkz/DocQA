@@ -14,18 +14,18 @@ export default function Home() {
         </div>
 
         <h1 className='max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl'>
-          Chat with your{' '}
+          Generate QnA from your{' '}
           <span className='text-green-600'>documents</span>{' '}
           in seconds.
         </h1>
 
         <p className='mt-5 max-w-prose text-zinc-700 sm:text-lg'>
-          DocQA allows you to have conversations with any
+          DocQA allows you to generate QnA's from any
           PDF document. Simply upload your file and start
-          asking questions right away.
+          generating right away.
         </p>
 
-        <Link
+        {/* <Link
           className={buttonVariants({
             size: 'lg',
             className: 'mt-5',
@@ -34,7 +34,7 @@ export default function Home() {
           target='_blank'>
           Get started{' '}
           <ArrowRight className='ml-2 h-5 w-5' />
-        </Link>
+        </Link> */}
 
       </MaxWidthWrapper>
 
@@ -148,7 +148,7 @@ export default function Home() {
                 Start asking questions
               </span>
               <span className='mt-2 text-zinc-700'>
-                It&apos;s that simple. Try out Quill today -
+                It&apos;s that simple. Try out DocQA today -
                 it really takes less than a minute.
               </span>
             </div>

@@ -11,12 +11,12 @@ import { ChatContextProvider } from './ChatContext'
 
 interface ChatWrapperProps {
   fileId: string
-  isSubscribed: boolean
+  // isSubscribed: boolean
 }
 
 const ChatWrapper = ({
   fileId,
-  isSubscribed,
+  // isSubscribed,
 }: ChatWrapperProps) => {
   const { data, isLoading } =
     trpc.getFileUploadStatus.useQuery(
@@ -87,9 +87,9 @@ const ChatWrapper = ({
             </h3>
             <p className='text-zinc-500 text-sm'>
               Your{' '}
-              <span className='font-medium'>
+              {/* <span className='font-medium'>
                 {isSubscribed ? 'Pro' : 'Free'}
-              </span>{' '}
+              </span>{' '} */}
               plan supports up to{' '}
               {/* {isSubscribed
                 ? PLANS.find((p) => p.name === 'Pro')
