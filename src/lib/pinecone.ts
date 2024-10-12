@@ -1,10 +1,9 @@
-import { Pinecone } from '@pinecone-database/pinecone';
+  import { Pinecone } from '@pinecone-database/pinecone';
 
-export const getPineconeClient = () => {
-  const client = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY!,
-    environment: 'us-east1-aws', // Your Pinecone environment
-  });
+  export const getPineconeClient = () => {
+    const client = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
 
-  return client;
-};
+    return client;
+  };

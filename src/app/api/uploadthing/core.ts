@@ -5,6 +5,7 @@ import {
   type FileRouter,
 } from 'uploadthing/next'
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
 import { PineconeStore } from 'langchain/vectorstores/pinecone'
 import { getPineconeClient } from '@/lib/pinecone'
@@ -70,59 +71,89 @@ const onUploadComplete = async ({
     const pageLevelDocs = await loader.load();
     const pagesAmt = pageLevelDocs.length;
     console.log(`Loaded ${pagesAmt} pages from PDF.`);
+    console.log(pageLevelDocs);
 
-    // const { subscriptionPlan } = metadata
-    // const { isSubscribed } = subscriptionPlan
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+      chunkOverlap: 200,
+    });
 
-    // const isProExceeded =
-    //   pagesAmt >
-    //   PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
-    // const isFreeExceeded =
-    //   pagesAmt >
-    //   PLANS.find((plan) => plan.name === 'Free')!
-    //     .pagesPerPdf
+    const chunks = await textSplitter.splitDocuments(pageLevelDocs);
 
-    // if (
-    //   (isSubscribed && isProExceeded) ||
-    //   (!isSubscribed && isFreeExceeded)
-    // ) {
-    //   await db.file.update({
-    //     data: {
-    //       uploadStatus: 'FAILED',
-    //     },
-    //     where: {
-    //       id: createdFile.id,
-    //     },
-    //   })
-    // }
+    console.log(chunks);
 
     // Vectorize and index entire document
-    console.log("creating pinecone client");
+    console.log("connecting to pinecone client");
     const pinecone = getPineconeClient(); 
     const pineconeIndex = pinecone.Index('docqa')
 
     console.log("got pinecone index", pineconeIndex);
-    
-    // Using OPENAI (not working)
-    const embeddings = new OpenAIEmbeddings({
-      openAIApiKey: process.env.OPENAI_API_KEY,
-    })
-    console.log("got embeddings")
 
-    if (!embeddings) {
-      console.log('Failed to initialize OpenAI embeddings. Check your API key.');
+
+    // Using OPENAI
+    const openaiEmbeddings = new OpenAIEmbeddings({
+      openAIApiKey: process.env.OPENAI_API_KEY,
+      modelName: 'text-embedding-3-small',
+    })
+    console.log("OPENAI embeddings initialised")
+
+    if (!openaiEmbeddings) {
+      console.log('Failed to initialize openai. Check your API key.');
     }
 
-    console.log("creating vectors")
-    await PineconeStore.fromDocuments(
-      pageLevelDocs,
-      embeddings,
-      {
-      // @ts-ignore
-        pineconeIndex, // Use the index directly
-        namespace: createdFile.id,
+    console.log("creating embeddings")
+
+    const embeddingsArray: number[][] = await openaiEmbeddings.embedDocuments(
+      chunks.map((chunk) => chunk.pageContent.replace(/\n/g, " "))
+    );
+
+    console.log("got embeddings")
+
+    console.log(embeddingsArray.length)
+    console.log(embeddingsArray)
+
+    interface Vector {
+      id: string; 
+      values: number[];
+      metadata: {
+          loc?: string; 
+          pageContent?: string; 
+          pdf?: string;
+      };
+  }
+
+    const batchSize = 100;
+    let batch: Vector[] = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const embedding = embeddingsArray[i];
+      const vector = {
+        id: `${createdFile.id}_${i + 1}`,
+        values: embedding,
+        metadata: {
+          loc: JSON.stringify(chunk.metadata.loc),
+          pageContent: chunk.pageContent,
+          pdf: JSON.stringify(chunk.metadata.pdf),
+        }
       }
-    )
+      batch.push(vector)
+
+      if( batch.length === batchSize || i === chunks.length - 1 ){
+        await pineconeIndex.namespace(createdFile.id).upsert(
+          batch,
+        )
+        batch = [];
+      }
+    }
+    
+    // await PineconeStore.fromDocuments(
+    //   docs,
+    //   embeddings,
+    //   {
+    //     pineconeIndex, 
+    //     namespace: createdFile.id,
+    //   }
+    // )
 
     await db.file.update({
       data: {
