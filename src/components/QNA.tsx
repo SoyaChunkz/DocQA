@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
+import Skeleton from 'react-loading-skeleton'
 
 interface QNAProps {
   fileId: string
@@ -11,6 +13,7 @@ const QNA = ({ fileId }: QNAProps) => {
   const [generatedResponse, setGeneratedResponse] = useState<string | null>(
     null
   )
+  const [loading, setLoading] = useState<boolean>(false)
 
   const handleNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.max(1, Math.min(10, Number(event.target.value)))
@@ -23,6 +26,7 @@ const QNA = ({ fileId }: QNAProps) => {
 
   const { mutate: generateQuestions } = useMutation({
     mutationFn: async () => {
+      setLoading(true)
       const response = await fetch('/api/generateqna', {
         method: 'POST',
         headers: {
@@ -61,9 +65,11 @@ const QNA = ({ fileId }: QNAProps) => {
     },
     onSuccess: (data) => {
       setGeneratedResponse(data)
+      setLoading(false)
     },
     onError: (error) => {
       console.error('Error generating questions:', error)
+      setLoading(false)
     },
   })
 
@@ -108,17 +114,28 @@ const QNA = ({ fileId }: QNAProps) => {
           onChange={handleTypeChange}
           className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-500 focus:border-green-500 p-2"
         >
-          <option value="Subjective">Subjective</option>
+          <option value="Subjective">SUBJECTIVE</option>
           <option value="MCQ">MCQ</option>
         </select>
       </div>
 
       <button
         onClick={handleSubmit}
-        className="w-full bg-green-600 text-white py-3 rounded-md font-semibold text-lg hover:shadow-lg transition duration-300 transform hover:scale-105"
+        className="w-full bg-green-600 text-white py-3 rounded-md font-semibold text-lg hover:shadow-lg hover:bg-green-500 transition duration-300 transform"
       >
         Generate Questions!
       </button>
+
+
+      {loading && (
+        <div className="flex justify-center items-center mt-6">
+          <Loader2 className="animate-spin text-green-600" size={36} />
+        </div>
+      )}
+
+      {loading && (
+        <Skeleton height={100} className='my-2' count={3} />
+      )}
 
       {generatedResponse && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md border border-gray-200">

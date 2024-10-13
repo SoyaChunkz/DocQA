@@ -20,11 +20,11 @@ export default function Home() {
         </h1>
 
         <p className='mt-5 max-w-prose text-zinc-700 sm:text-lg list-none'>
-          
-            <li>DocQA allows you to generate QnA's from any PDF document.</li>
-            <li>You can also ask any specific questions or chat with your pdf.</li>
-            <li>Simply upload your file and start generating right away.</li>
-          
+
+          <li>DocQA allows you to generate QnA's from any PDF document.</li>
+          <li>You can also ask any specific questions or chat with your pdf.</li>
+          <li>Simply upload your file and start generating right away.</li>
+
         </p>
 
         {/* <Link
