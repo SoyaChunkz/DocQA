@@ -14,15 +14,15 @@ export default function Home() {
         </div>
 
         <h1 className='max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl'>
-          Generate QnA from your{' '}
+          Generate QNA or CHAT with your{' '}
           <span className='text-green-600'>documents</span>{' '}
           in seconds.
         </h1>
 
-        <p className='mt-5 max-w-prose text-zinc-700 sm:text-lg'>
-          DocQA allows you to generate QnA's from any
-          PDF document. Simply upload your file and start
-          generating right away.
+        <p className='mt-5 max-w-prose text-zinc-700 sm:text-lg list-none'>
+          <li>DocQA allows you to generate QnA's from any</li>
+          <li>PDF document. You can also ask any specific questions or chat with your pdf.</li>
+          <li>Simply upload your file and start generating right away.</li>
         </p>
 
         {/* <Link
@@ -60,7 +60,36 @@ export default function Home() {
               <div className='mt-16 flow-root sm:mt-24'>
                 <div className='-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4'>
                   <Image
-                    src='/dashboard-preview.jpg'
+                    src='/qna_preview.png'
+                    alt='product preview'
+                    width={1364}
+                    height={866}
+                    quality={100}
+                    className='rounded-md bg-white p-2 sm:p-4 md:p-6 shadow-2xl ring-1 ring-gray-900/10'
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div className='mb-12 mt-20 px-6 lg:px-8'>
+            <div className='mx-auto max-w-2xl sm:text-center'>
+              <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-4xl'>
+                Beautiful UI/UX
+              </h2>
+            </div>
+          </div>
+          
+
+          
+          <div>
+            <div className='mx-auto max-w-6xl px-6 lg:px-8'>
+              <div className='mt-16 flow-root sm:mt-24'>
+                <div className='-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4'>
+                  <Image
+                    src='/dashboard_preview.png'
                     alt='product preview'
                     width={1364}
                     height={866}
@@ -89,19 +118,26 @@ export default function Home() {
       </div>
 
       {/* Feature section */}
-      <div className='mx-auto mb-32 mt-32 max-w-5xl sm:mt-56'>
+      <div className='mx-auto mb-32 mt-28 max-w-5xl sm:mt-56'>
 
         <div className='mb-12 px-6 lg:px-8'>
           <div className='mx-auto max-w-2xl sm:text-center'>
-            <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-5xl'>
-              Start chatting in minutes
+            <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-4xl'>
+            Interacting with your PDF files has never been
+            easier than with DocQA.
             </h2>
-            <p className='mt-4 text-lg text-gray-600'>
-              Chatting to your PDF files has never been
-              easier than with DocQA.
-            </p>
           </div>
         </div>
+
+        <div className='mb-12 px-6 lg:px-8'>
+            <div className='mx-auto max-w-2xl sm:text-center'>
+              <p className='mt-4 text-lg text-gray-600'>
+                Follow these steps to get started
+              </p>
+            </div>
+          </div>
+        
+        
 
         {/* steps */}
         <ol className='my-8 mx-1 md:mx-10 space-y-8 pt-8 md:flex md:space-x-14 md:space-y-0'>
@@ -135,7 +171,7 @@ export default function Home() {
               </span>
               <span className='mt-2 text-zinc-700'>
                 We&apos;ll process your file and make it
-                ready for you to chat with.
+                ready for you to started with.
               </span>
             </div>
           </li>

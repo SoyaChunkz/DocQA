@@ -17,31 +17,27 @@ const Playground: React.FC<PlaygroundProps> = ({ fileId }) => {
 
   return (
     <div className="min-h-full bg-zinc-50 flex flex-col gap-4 p-4">
-      <h1 className="text-2xl font-bold">Playground</h1>
       
       {/* Navigation Buttons */}
       <div className="flex space-x-4 mb-4">
         <button
           onClick={() => handleComponentChange('chat')}
-          className={`p-2 rounded ${activeComponent === 'chat' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+          className={`px-4 py-1 rounded text-sm ${activeComponent === 'chat' ? 'bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400'}`}
         >
           Chat
         </button>
         <button
           onClick={() => handleComponentChange('qna')}
-          className={`p-2 rounded ${activeComponent === 'qna' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+          className={`px-4 py-1 rounded text-sm ${activeComponent === 'qna' ? 'bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400'}`}
         >
           Q&A Generator
         </button>
       </div>
 
-      {/* Active Component Display */}
+      {/* Render only the active component */}
       <div className="flex-1">
-        {activeComponent === 'chat' ? (
-          <ChatWrapper fileId={fileId} />
-        ) : (
-          <QNA fileId={fileId} />
-        )}
+        {activeComponent === 'chat' && <ChatWrapper fileId={fileId} />}
+        {activeComponent === 'qna' && <QNA fileId={fileId} />}
       </div>
     </div>
   );
