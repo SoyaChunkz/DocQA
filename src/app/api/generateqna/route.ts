@@ -3,10 +3,12 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { getPineconeClient } from "@/lib/pinecone";
 import { QNAgeneratorValidator } from "@/lib/validators/SendMessageValidator";
+import { parseQnaEntries } from "@/lib/parseQnaEntries";
 import { openai } from "@/lib/openai"
 import { OpenAIEmbeddings } from "langchain/embeddings/openai"
 import{ OpenAIStream, StreamingTextResponse } from "ai"
 import { record } from "zod";
+import { QuestionType } from "@prisma/client";
 
 
 
@@ -68,65 +70,104 @@ export const POST = async (req: NextRequest) => {
     console.log(context)
 
     const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        temperature: 0,
-        stream: true,
-        messages: [
+      model: 'gpt-4o-mini',
+      temperature: 0,
+      stream: true,
+      messages: [
           {
-            role: 'system',
-            content:
-              'Use the following pieces of context to answer the users question in markdown format.',
+              role: 'system',
+              content: 'Use the following pieces of context to answer the user\'s question in a precise format.',
           },
           {
-            role: 'user',
-            content: `Use the following pieces of context to answer the user's question in proper format. 
-
-      If you don't know the answer, just say that you don't know, don't try to make up an answer. Try to avoid unnecessary spacings and special cahracters like * or #
-      
-      ----------------
-      CONTEXT: ${context}
-      
-      ----------------
-      USER INPUT: Generate ${numQuestions} Questions and Answers of type ${questionType}
-      
-      ----------------
-      ${
-        questionType.trim().toLowerCase() === 'subjective' ? 
-        `Each subjective question should be followed by an answer that is at least 8 lines long. 
-         Format the output as follows:
-      
-         Question: [The question here]
-      
-         Answer: [The detailed answer here, at least 8 lines long]` 
-
-         : 
-
-        `Each question should include four options, the correct answer, and a short explanation of why that answer is correct. 
-         Format the output as follows:
-      
-         Question: [The question here]
-      
-         Options:
-         1. [Option A]
-         2. [Option B]
-         3. [Option C]
-         4. [Option D]
-        
-         Answer: [The correct answer here]
-        
-         Explanation: [A short explanation for the correct answer (1 or 2 lines)]`
-      }`
+              role: 'user',
+              content: `Use the following pieces of context to answer the user's question in the specified format.
+  
+              If you don't know the answer, just say that you don't know. Please avoid unnecessary spacing and special characters like * or #.
+              
+              ----------------
+              CONTEXT: ${context}
+              
+              ----------------
+              USER INPUT: Generate ${numQuestions} Questions and Answers of type ${questionType}.
+              
+              ----------------
+              ${
+                  questionType.trim().toLowerCase() === 'subjective' ?
+                  `Each subjective question should be followed by an answer that is at least 10 lines long. 
+                   Format the output as follows:
+              
+                   Question: [The question here]
+              
+                   Answer: [The detailed answer here, at least 10 lines long]` 
+                  : 
+                  `Each question should include four options, the correct answer, and a short explanation of why that answer is correct. 
+                   Format the output as follows:
+              
+                   Question: [The question here]
+              
+                   Options:
+                   1. [Option A]
+                   2. [Option B]
+                   3. [Option C]
+                   4. [Option D]
+                  
+                   Answer: [The correct answer here]
+                  
+                   Explanation: [A short explanation for the correct answer (1 or 2 lines)]`
+              }`
           },
-        ],
-      });
-      
+      ],
+  });
+  
+
+  console.log(response)
 
     // @ts-ignore
     const stream = OpenAIStream(response, {
-        async onCompletion(completion){
-            console.log(response) 
-        }
-      })
+      async onCompletion(completion) {
+          const qnaEntries = parseQnaEntries(completion, questionType as "subjective" | "mcq");
+
+          // Create a QnaSet entry
+          let qnaSetId;
+          try {
+              const qnaSet = await db.qnaSet.create({
+                  data: {
+                      userId,
+                      fileId,
+                  }
+              });
+              if (qnaSet && typeof qnaSet.id === "string") {
+                qnaSetId = qnaSet.id; // Save the QnaSet ID for later use
+            } else {
+                console.warn("QnaSet created but ID is not valid. Assigning undefined to qnaSetId.");
+                qnaSetId = ''; // Assign undefined if ID is not valid
+            }
+          } catch (dbError) {
+              console.error("Error creating QnaSet:", dbError);
+              // Optionally, handle the error (e.g., send a response indicating failure)
+          }
+
+          // Iterate over each QnA entry and create a Qna entry
+          for (const entry of qnaEntries) {
+              try {
+                  await db.qna.create({
+                      data: {
+                          question: entry.question,
+                          answer: entry.answer,
+                          questionType: questionType as QuestionType,
+                          options: entry.options || [], // Ensure options are set as an array
+                          correctAnswer: entry.correctAnswer || null, // Set to null if not applicable
+                          qnaSetId: qnaSetId || '', // Link to the created QnaSet, or null if creation failed
+                      }
+                  });
+              } catch (entryError) {
+                  console.error("Error creating QnA entry:", entryError);
+                  // Handle the error for individual QnA entries if needed
+              }
+          }
+      }
+  });
+
 
     return new StreamingTextResponse(stream); 
 }

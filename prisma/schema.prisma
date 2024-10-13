@@ -4,13 +4,13 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client { 
+generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
@@ -20,11 +20,13 @@ model User {
 
   File    File[]
   Message Message[]
+  QnaSet  QnaSet[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
   stripePriceId          String?   @map(name: "stripe_price_id")
   stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+  
 }
 
 enum UploadStatus {
@@ -43,11 +45,13 @@ model File {
   url      String
   key      String
   messages Message[]
+  QnaSet    QnaSet[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   User      User?    @relation(fields: [userId], references: [id])
   userId    String?
+  
 }
 
 model Message {
@@ -62,4 +66,37 @@ model Message {
   userId    String?
   File      File?    @relation(fields: [fileId], references: [id])
   fileId    String?
+}
+
+enum QuestionType {
+    SUBJECTIVE
+    MCQ
+}
+
+model Qna {
+  id            String       @id @default(cuid())
+  question      String       @db.Text()
+  answer        String       @db.Text()
+  questionType  QuestionType @default(SUBJECTIVE)
+  options       String[]               // Array of answer options for MCQs (can be empty if not applicable)
+  correctAnswer String?      @db.Text()// Optional: Store the correct answer for MCQs
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  qnaSetId String // Foreign key for QnaSet
+  QnaSet   QnaSet  @relation(fields: [qnaSetId], references: [id])
+}
+
+model QnaSet {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Qnas Qna[]
+
+  userId String?
+  User   User?   @relation(fields: [userId], references: [id])
+  fileId String?
+  File   File?   @relation(fields: [fileId], references: [id])
 }

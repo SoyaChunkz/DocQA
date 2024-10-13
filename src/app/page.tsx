@@ -20,9 +20,11 @@ export default function Home() {
         </h1>
 
         <p className='mt-5 max-w-prose text-zinc-700 sm:text-lg list-none'>
-          <li>DocQA allows you to generate QnA's from any</li>
-          <li>PDF document. You can also ask any specific questions or chat with your pdf.</li>
-          <li>Simply upload your file and start generating right away.</li>
+          
+            <li>DocQA allows you to generate QnA's from any PDF document.</li>
+            <li>You can also ask any specific questions or chat with your pdf.</li>
+            <li>Simply upload your file and start generating right away.</li>
+          
         </p>
 
         {/* <Link
@@ -75,8 +77,8 @@ export default function Home() {
 
 
           <div className='mb-12 mt-20 px-6 lg:px-8'>
-            <div className='mx-auto max-w-2xl sm:text-center'>
-              <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-4xl'>
+            <div className='mx-auto max-w-2xl text-center'>
+              <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-5xl'>
                 Beautiful UI/UX
               </h2>
             </div>
@@ -118,11 +120,11 @@ export default function Home() {
       </div>
 
       {/* Feature section */}
-      <div className='mx-auto mb-32 mt-28 max-w-5xl sm:mt-56'>
+      <div className='mx-auto mb-32 mt-28 max-w-5xl sm:mt-32'>
 
         <div className='mb-12 px-6 lg:px-8'>
           <div className='mx-auto max-w-2xl sm:text-center'>
-            <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-4xl'>
+            <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-5xl'>
             Interacting with your PDF files has never been
             easier than with DocQA.
             </h2>
