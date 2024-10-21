@@ -11,7 +11,6 @@ import{ OpenAIStream, StreamingTextResponse } from "ai"
 export const POST = async (req: NextRequest) => {
 
     // endpoint for asking a question to a pdf file
-  
     const body = await req.json();
   
     const { getUser } = getKindeServerSession();
