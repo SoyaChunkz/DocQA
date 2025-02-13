@@ -23,6 +23,7 @@ export const POST = async (req: NextRequest) => {
 
   const { fileId, numQuestions, questionType } = QNAgeneratorValidator.parse(body)
 
+
   // Validate file ownership
   const file = await db.file.findFirst({
     where: { id: fileId, userId },
@@ -94,16 +95,17 @@ export const POST = async (req: NextRequest) => {
               ${
                   questionType.trim().toLowerCase() === 'subjective' ?
                   `Each subjective question should be followed by an answer that is at least 10 lines long. 
-                   Format the output as follows:
+                   Format the output in aescending order of question numbers as follows:
               
-                   Question: [The question here]
+                   Q [number]. : [The question here]
               
-                   Answer: [The detailed answer here, at least 10 lines long]` 
+                   Ans: [The detailed answer here, at least 10 lines long]
+                   Include this [##############] as a delimiter after each question` 
                   : 
                   `Each question should include four options, the correct answer, and a short explanation of why that answer is correct. 
                    Format the output as follows:
               
-                   Question: [The question here]
+                   Q [number]. : [The question here]
               
                    Options:
                    1. [Option A]
@@ -111,14 +113,31 @@ export const POST = async (req: NextRequest) => {
                    3. [Option C]
                    4. [Option D]
                   
-                   Answer: [The correct answer here]
+                   Ans: [The correct answer here]
                   
-                   Explanation: [A short explanation for the correct answer (1 or 2 lines)]`
+                   Explanation: [A short explanation for the correct answer (1 or 2 lines)]
+                   Include this [##############] as a delimiter after each question `
               }`
           },
       ],
   });
   
+  console.log(fileId, numQuestions, questionType)
+
+  function getQuestionType(type: string): QuestionType | null {
+    switch (type.toLowerCase()) {
+        case 'subjective':
+            return QuestionType.SUBJECTIVE;
+        case 'mcq':
+            return QuestionType.MCQ;
+        default:
+            throw new Error(`Invalid question type: ${type}`);
+    }
+}
+
+// @ts-ignore
+const questionTypeEnum: QuestionType = getQuestionType(questionType);
+
 
   console.log(response)
 
@@ -126,6 +145,8 @@ export const POST = async (req: NextRequest) => {
     const stream = OpenAIStream(response, {
       async onCompletion(completion) {
           const qnaEntries = parseQnaEntries(completion, questionType as "subjective" | "mcq");
+
+          console.log("From route.ts: ", qnaEntries)
 
           // Create a QnaSet entry
           let qnaSetId;
@@ -154,9 +175,9 @@ export const POST = async (req: NextRequest) => {
                       data: {
                           question: entry.question,
                           answer: entry.answer,
-                          questionType: questionType as QuestionType,
-                          options: entry.options || [], // Ensure options are set as an array
-                          correctAnswer: entry.correctAnswer || null, // Set to null if not applicable
+                          questionType: questionTypeEnum,
+                          options: entry.options || [], 
+                          explanation: entry.explanation || null, 
                           qnaSetId: qnaSetId || '', // Link to the created QnaSet, or null if creation failed
                       }
                   });

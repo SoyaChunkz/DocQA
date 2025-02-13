@@ -1,8 +1,8 @@
 interface QnAEntry {
     question: string;
     answer: string;
-    options?: string[];
-    correctAnswer?: string | null;
+    options?: string[] | null;
+    explanation?: string | null;
 }
 
 export const parseQnaEntries = (completion: string, questionType: "subjective" | "mcq"): QnAEntry[] => {
@@ -11,39 +11,63 @@ export const parseQnaEntries = (completion: string, questionType: "subjective" |
         throw new Error("Invalid completion input");
     }
 
-    console.log("Raw completion input:", completion);
+    console.log("Raw completion input (String):", completion);
     
     const qnaEntries: QnAEntry[] = [];
-    const entries = completion.trim().split('\n\n'); // Split based on two newlines
+    const entries = completion.trim().split('##############'); // Split based on two newlines
 
-    console.log(entries)
+    console.log("Entries (Array): " + entries)
 
     for (const entry of entries) {
-        const lines = entry.split('\n');
-        console.log("new linel", lines)
+        const qna = entry.split('\n').map(line => line.trim()).filter(line => line !== ''); // Trim lines and filter out blank lines
+        console.log("New qna: ", qna)
+
+        // Skip empty entries
+        if (qna.length === 0) continue;
+
         let question = '';
         let answer = '';
         let options: string[] = [];
-        let correctAnswer: string | null = null;
+        let explanation: string | null = null;
 
         // Extract question and answer based on question type
         if (questionType === 'subjective') {
-            question = lines[0].replace(/^Question:\s*/, '').trim();
-            answer = lines[1].replace(/^Answer:\s*/, '').trim();
+
+            question = qna[0].replace(/^Q \[\d+\]:\s*/, '').trim();
+
+            const answerLine = qna.find(line => line.startsWith('Ans:'));
+            answer = answerLine ? answerLine.replace(/^Ans:\s*/, '').trim() : '';
         } else { // MCQ
-            question = lines[0].replace(/^Question:\s*/, '').trim();
+            question = qna[0].replace(/^Q \[\d+\]:\s*/, '').trim();
+
             // Assuming options are listed after "Options:"
-            const optionsLineIndex = lines.findIndex(line => line.startsWith('Options:'));
+            const optionsLineIndex = qna.findIndex(line => line.startsWith('Options:'));
             if (optionsLineIndex !== -1) {
-                options = lines.slice(optionsLineIndex + 1, -1) // Collect options until the last line
+                options = qna.slice(optionsLineIndex + 1, qna.length - 2) // Collect options until the last two lines (Ans and Explanation)
                     .map(option => option.replace(/^(\d+\.\s)/, '').trim());
             }
-            correctAnswer = lines.find(line => line.startsWith('Answer:'))?.replace(/^Answer:\s*/, '').trim() || null;
+        }
+
+        const answerLine = qna.find(line => line.startsWith('Ans:'));
+        if (answerLine) {
+            answer = answerLine.replace(/^Ans:\s*/, '').trim();
+        }
+
+        const explanationLine = qna.find(line => line.startsWith('Explanation:'));
+        if (explanationLine) {
+            explanation = explanationLine.replace(/^Explanation:\s*/, '').trim();
         }
 
         // Push the constructed QnAEntry object
-        qnaEntries.push({ question, answer, options: questionType === 'mcq' ? options : undefined, correctAnswer });
+        qnaEntries.push({ 
+            question, 
+            answer, 
+            options: options, 
+            explanation: explanation});
     }
+
+    console.log("All Qnas: ")
+    console.log(qnaEntries)
 
     return qnaEntries;
 };

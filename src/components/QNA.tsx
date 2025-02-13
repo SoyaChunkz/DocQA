@@ -9,7 +9,7 @@ interface QNAProps {
 
 const QNA = ({ fileId }: QNAProps) => {
   const [numberOfQuestions, setNumberOfQuestions] = useState<number>(1)
-  const [questionType, setQuestionType] = useState<string>('Subjective')
+  const [questionType, setQuestionType] = useState<string>('SUBJECTIVE')
   const [generatedResponse, setGeneratedResponse] = useState<string | null>(
     null
   )
@@ -114,7 +114,7 @@ const QNA = ({ fileId }: QNAProps) => {
           onChange={handleTypeChange}
           className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-500 focus:border-green-500 p-2"
         >
-          <option value="Subjective">SUBJECTIVE</option>
+          <option value="SUBJECTIVE">SUBJECTIVE</option>
           <option value="MCQ">MCQ</option>
         </select>
       </div>

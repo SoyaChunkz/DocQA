@@ -79,7 +79,7 @@ model Qna {
   answer        String       @db.Text()
   questionType  QuestionType @default(SUBJECTIVE)
   options       String[]               // Array of answer options for MCQs (can be empty if not applicable)
-  correctAnswer String?      @db.Text()// Optional: Store the correct answer for MCQs
+  explanation   String?      @db.Text()// Optional: Store the correct answer for MCQs
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
