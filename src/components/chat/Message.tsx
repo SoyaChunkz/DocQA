@@ -62,9 +62,28 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
             )}>
             {typeof message.text === 'string' ? (
               <ReactMarkdown
-                className={cn('prose', {
-                  'text-zinc-50': message.isUserMessage,
-                })}>
+                className={cn('prose prose-sm max-w-none', {
+                  'prose-invert text-zinc-50': message.isUserMessage,
+                  'prose-neutral': !message.isUserMessage,
+                })}
+                components={{
+                  pre: ({ node, ...props }) => (
+                    <pre className="bg-zinc-800 text-zinc-50 rounded-md p-2 overflow-x-auto" {...props} />
+                  ),
+                  code: ({ node, ...props }) => (
+                    <code className="bg-zinc-800 text-zinc-50 rounded-md p-1 font-mono text-sm" {...props} />
+                  ),
+                  h1: ({ node, ...props }) => <h1 className="text-xl font-bold my-2" {...props} />,
+                  h2: ({ node, ...props }) => <h2 className="text-lg font-bold my-2" {...props} />,
+                  h3: ({ node, ...props }) => <h3 className="text-md font-bold my-2" {...props} />,
+                  ul: ({ node, ...props }) => <ul className="list-disc pl-4 my-2" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="list-decimal pl-4 my-2" {...props} />,
+                  li: ({ node, ...props }) => <li className="my-1" {...props} />,
+                  p: ({ node, ...props }) => <p className="my-2" {...props} />,
+                  a: ({ node, ...props }) => (
+                    <a className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                  ),
+                }}>
                 {message.text}
               </ReactMarkdown>
             ) : (
