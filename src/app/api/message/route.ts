@@ -1,5 +1,5 @@
 import { db } from "@/db"
-import { openai } from "@/lib/openai"
+import { getOpenAIClient } from "@/lib/openai"
 import { getPineconeClient } from "@/lib/pinecone"
 import { SendMessageValidator } from "@/lib/validators/SendMessageValidator"
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
@@ -97,7 +97,7 @@ export const POST = async (req: NextRequest) => {
     content: msg.text,
   }))
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4o-mini',
     temperature: 0,
     stream: true,

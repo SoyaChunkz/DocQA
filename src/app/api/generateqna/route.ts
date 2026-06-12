@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { getPineconeClient } from "@/lib/pinecone";
 import { QNAgeneratorValidator } from "@/lib/validators/SendMessageValidator";
 import { parseQnaEntries } from "@/lib/parseQnaEntries";
-import { openai } from "@/lib/openai"
+import { getOpenAIClient } from "@/lib/openai"
 import { OpenAIEmbeddings } from "langchain/embeddings/openai"
 import{ OpenAIStream, StreamingTextResponse } from "ai"
 import { record } from "zod";
@@ -70,7 +70,7 @@ export const POST = async (req: NextRequest) => {
 
     console.log(context)
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4o-mini',
       temperature: 0,
       stream: true,
