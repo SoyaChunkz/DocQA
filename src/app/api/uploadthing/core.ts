@@ -4,10 +4,9 @@ import {
   createUploadthing,
   type FileRouter,
 } from 'uploadthing/next'
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
-import { PineconeStore } from 'langchain/vectorstores/pinecone'
+import { loadPdfPages } from '@/lib/pdf-loader'
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
+import { OpenAIEmbeddings } from '@langchain/openai'
 import { getPineconeClient } from '@/lib/pinecone'
 // import { getUserSubscriptionPlan } from '@/lib/stripe'
 // import { PLANS } from '@/config/stripe'
@@ -66,9 +65,8 @@ const onUploadComplete = async ({
     console.log("got file")
     
     const blob = await response.blob();
-    const loader = new PDFLoader(blob);
 
-    const pageLevelDocs = await loader.load();
+    const pageLevelDocs = await loadPdfPages(blob);
     const pagesAmt = pageLevelDocs.length;
     console.log(`Loaded ${pagesAmt} pages from PDF.`);
     console.log(pageLevelDocs);

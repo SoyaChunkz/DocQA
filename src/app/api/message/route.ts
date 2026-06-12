@@ -3,10 +3,9 @@ import { getOpenAIClient } from "@/lib/openai"
 import { getPineconeClient } from "@/lib/pinecone"
 import { SendMessageValidator } from "@/lib/validators/SendMessageValidator"
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
-import { OpenAIEmbeddings } from "langchain/embeddings/openai"
-import { PineconeStore } from "langchain/vectorstores/pinecone"
+import { OpenAIEmbeddings } from "@langchain/openai"
 import { NextRequest } from "next/server"
-import{ OpenAIStream, StreamingTextResponse } from "ai"
+import { streamChatCompletion } from "@/lib/openai-stream"
 
 export const POST = async (req: NextRequest) => {
 
@@ -16,7 +15,7 @@ export const POST = async (req: NextRequest) => {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
-  const { id: userId } = user
+  const userId = user?.id
 
   if (!userId)
     return new Response('Unauthorized', { status: 401 })
@@ -135,20 +134,14 @@ export const POST = async (req: NextRequest) => {
     ],
   })
   
-  // @ts-ignore
-  const stream = OpenAIStream(response, {
-    async onCompletion(completion){
-      console.log(completion)
-      await db.message.create({
-        data: {
-          text: completion,
-          isUserMessage: false,
-          fileId,
-          userId,
-        }
-      })
-    }
+  return streamChatCompletion(response, async (completion) => {
+    await db.message.create({
+      data: {
+        text: completion,
+        isUserMessage: false,
+        fileId,
+        userId,
+      }
+    })
   })
-
-  return new StreamingTextResponse(stream); 
 }

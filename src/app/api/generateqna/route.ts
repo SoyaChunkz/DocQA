@@ -5,9 +5,7 @@ import { getPineconeClient } from "@/lib/pinecone";
 import { QNAgeneratorValidator } from "@/lib/validators/SendMessageValidator";
 import { parseQnaEntries } from "@/lib/parseQnaEntries";
 import { getOpenAIClient } from "@/lib/openai"
-import { OpenAIEmbeddings } from "langchain/embeddings/openai"
-import{ OpenAIStream, StreamingTextResponse } from "ai"
-import { record } from "zod";
+import { streamChatCompletion } from "@/lib/openai-stream"
 import { QuestionType } from "@prisma/client";
 
 
@@ -18,7 +16,7 @@ export const POST = async (req: NextRequest) => {
     const { getUser } = getKindeServerSession();
     const user = await getUser();
 
-    const { id: userId } = user;
+    const userId = user?.id;
   if (!userId) return new Response('Unauthorized', { status: 401 });
 
   const { fileId, numQuestions, questionType } = QNAgeneratorValidator.parse(body)
@@ -141,9 +139,7 @@ const questionTypeEnum: QuestionType = getQuestionType(questionType);
 
   console.log(response)
 
-    // @ts-ignore
-    const stream = OpenAIStream(response, {
-      async onCompletion(completion) {
+    return streamChatCompletion(response, async (completion) => {
           const qnaEntries = parseQnaEntries(completion, questionType as "subjective" | "mcq");
 
           console.log("From route.ts: ", qnaEntries)
@@ -186,9 +182,5 @@ const questionTypeEnum: QuestionType = getQuestionType(questionType);
                   // Handle the error for individual QnA entries if needed
               }
           }
-      }
   });
-
-
-    return new StreamingTextResponse(stream); 
 }
