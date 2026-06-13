@@ -10,7 +10,7 @@ export default function Home() {
       <MaxWidthWrapper className='mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center'>
 
         <div className='mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:bg-gray-300 hover:bg-white/50'>
-          <p className='text-sm font-semibold text-gray-700'>DocQA is now live!!</p>
+          <p className='text-sm font-semibold text-gray-700'>Quaesta is now live!!</p>
         </div>
 
         <h1 className='max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl'>
@@ -21,7 +21,7 @@ export default function Home() {
 
         <ul className='mt-5 max-w-prose text-zinc-700 sm:text-lg list-none'>
           
-          <li>DocQA allows you to generate QnA&apos;s from any PDF document.</li>
+          <li>Quaesta allows you to generate QnA&apos;s from any PDF document.</li>
           <li>You can also ask any specific questions or chat with your pdf.</li>
           <li>Simply upload your file and start generating right away.</li>
 
@@ -126,7 +126,7 @@ export default function Home() {
           <div className='mx-auto max-w-2xl sm:text-center'>
             <h2 className='mt-2 font-bold text-4xl text-gray-900 sm:text-5xl'>
             Interacting with your PDF files has never been
-            easier than with DocQA.
+            easier than with Quaesta.
             </h2>
           </div>
         </div>
@@ -186,7 +186,7 @@ export default function Home() {
                 Start asking questions
               </span>
               <span className='mt-2 text-zinc-700'>
-                It&apos;s that simple. Try out DocQA today -
+                It&apos;s that simple. Try out Quaesta today -
                 it really takes less than a minute.
               </span>
             </div>

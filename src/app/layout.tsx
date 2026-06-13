@@ -13,8 +13,8 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DocQA",
-  description: "QnA generator",
+  title: "Quaesta",
+  description: "Study smarter — generate questions from your documents and chat with them.",
 };
 
 export default function RootLayout({

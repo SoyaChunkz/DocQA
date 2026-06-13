@@ -1,6 +1,6 @@
-# DocQA
+# Quaesta
 
-A powerful document question-answering application that allows you to generate Q&A sets and chat with your PDF documents using AI.
+A study and exam-prep companion for teachers and students. Upload your PDFs to generate question sets and chat with your documents using AI — built for preparing questions and studying smarter.
 
 ## 🚀 Features
 
@@ -43,7 +43,7 @@ Before running this project, make sure you have:
 
 ```bash
 git clone <repository-url>
-cd DocQA
+cd Quaesta
 ```
 
 ### 2. Install Dependencies
@@ -60,7 +60,7 @@ Create a `.env.local` file in the root directory and add the following variables
 
 ```env
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/docqa"
+DATABASE_URL="postgresql://username:password@localhost:5432/quaesta"
 
 # OpenAI
 OPENAI_API_KEY="your-openai-api-key"
@@ -134,7 +134,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ## 🏗️ Project Structure
 
 ```
-DocQA/
+Quaesta/
 ├── src/
 │   ├── app/                 # Next.js app router
 │   │   ├── api/            # API routes
@@ -169,4 +169,4 @@ DocQA/
 3. Add environment variables in Vercel dashboard
 4. Deploy
 
-**DocQA** - Making document interaction smarter with AI! 🚀
+**Quaesta** - Making document interaction smarter with AI! 🚀
